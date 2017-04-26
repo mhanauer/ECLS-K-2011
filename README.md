@@ -37,15 +37,19 @@ data2 = as.data.frame(data2)
 head(data2)
 
 # Need to change 2 through 8 to be 1 and 1 to be zero
-data3 = data1$X1PAR1RAC
+data3 = cbind(X1PAR1RAC = data1$X1PAR1RAC)
 head(data3)
 
-data3 = apply(data3, 1, function(x){ifelse(x == 1, 0, 1)})
+data3 = apply(data3, 2, function(x){ifelse(x == 1, 0, 1)})
 data3 = as.data.frame(data3)
 
-data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,10894:10973])
+head(data1)
+
+data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,14:94])
 
 data1 = cbind(data1, data2, data3)
+
+head(data1)
 
 ```
 
