@@ -7,22 +7,51 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Here we are setting the WD to google drive.  Then we need to subset the data and rename the variables.  Then because the format is not correct reload the data.
+Here we are setting the WD to google drive.  Then we need to subset the data and rename the variables.  Then because the format is not correct reload the data.  Then we need to get rid of the missing variables first, and then create seperate dataset for making the alterations to the data set.
 ```{r}
 setwd("~/Google Drive/PARCS/Projects/ECLSK2011/Data")
 data = read.csv("ELCS-K-2011.csv", header = TRUE)
 
 # Get the data subsetted.  Creating the change variable, which is the difference between the two social control variables.  
-data1 = cbind(X1PRNCON = data$X1PRNCON, X1PRNSOC = data$X1PRNSOC, X1PRNSAD = data$X1PRNSAD, X1PRNIMP = data$X1PRNIMP, X1PRNAPP = data$X1PRNAPP, X_HISP_R = data$X_HISP_R, X_WHITE_R = data$X_WHITE_R, X_BLACK_R = data$X_BLACK_R, X_ASIAN_R = data$X_ASIAN_R, X_AMINAN_R = data$X_AMINAN_R, X_HAWPI_R = data$X_HAWPI_R, X_MULTR_R = data$X_MULTR_R, X12LANGST = data$X12LANGST, X1BMI = data$X1BMI, X_CHSEX_R = data$X_CHSEX_R, X1RESREL = data$X1RESREL, X1HPARNT = data$X1HPARNT, X1PAR1AGE = data$X1PAR1AGE, X1PAR1RAC = data$X1PAR1RAC, X12PAR1ED_I = data$X12PAR1ED_I, X1PAR1EMP = data$X1PAR1EMP, X1HTOTAL = data$X1HTOTAL, X1NUMSIB = data$X1NUMSIB, X1PRIMNW = data$X1PRIMNW, X2POVTY = data$X2POVTY, X12SESL = data$X12SESL, X1PUBPRI = data$X1PUBPRI, F1CLASS = data$F1CLASS, W12P0 = data$W12P0, data[,11054:11133])
+data1 = cbind(X1PRNCON = data$X1PRNCON, X1PRNSOC = data$X1PRNSOC, X1PRNSAD = data$X1PRNSAD, X1PRNIMP = data$X1PRNIMP, X1PRNAPP = data$X1PRNAPP, X1BMI = data$X1BMI, X1PAR1AGE = data$X1PAR1AGE, X1PAR1EMP = data$X1PAR1EMP, X1HTOTAL = data$X1HTOTAL, X1NUMSIB = data$X1NUMSIB, X2POVTY = data$X2POVTY, X12SESL = data$X12SESL, W1P0 = data$W1P0, data[,10894:10973])
+
+data2 = cbind(X_HISP_R = data$X_HISP_R, X_WHITE_R = data$X_WHITE_R, X_BLACK_R = data$X_BLACK_R, X_ASIAN_R = data$X_ASIAN_R, X_AMINAN_R = data$X_AMINAN_R, X_HAWPI_R = data$X_HAWPI_R, X_MULTR_R = data$X_MULTR_R, X12LANGST = data$X12LANGST,  X_CHSEX_R = data$X_CHSEX_R, X1RESREL = data$X1RESREL, X1HPARNT = data$X1HPARNT, X12PAR1ED_I = data$X12PAR1ED_I, X1PRIMNW = data$X1PRIMNW,  X1PUBPRI = data$X1PUBPRI)
+
+data3  = data$X1PAR1RAC
+
+data1 = cbind(data1, data2, data3)
 
 dim(data1)
-head(data1)
 
+data1 = na.omit(data1)
+data1 = as.data.frame(data1)
 
-
-
+dim(data1)
 
 ```
+Now we need to alter the variables to be binary in necessary.  First we create get all the variables where 1 is the interest and get those as 1 and rest as zero.  Then for parent ethnicty we change the ones to zero and everything else to one to have a non-white be one.  Then we need to grab a seperate subset of the all the remaining variables, so we don't double up on those variables when we cbind them togehter at the end.
+```{r}
+data2 = cbind(X_HISP_R = data1$X_HISP_R, X_WHITE_R = data1$X_WHITE_R, X_BLACK_R = data1$X_BLACK_R, X_ASIAN_R = data1$X_ASIAN_R, X_AMINAN_R = data1$X_AMINAN_R, X_HAWPI_R = data1$X_HAWPI_R, X_MULTR_R = data1$X_MULTR_R, X12LANGST = data1$X12LANGST,  X_CHSEX_R = data1$X_CHSEX_R, X1RESREL = data1$X1RESREL, X1HPARNT = data1$X1HPARNT, X12PAR1ED_I = data1$X12PAR1ED_I, X1PRIMNW = data1$X1PRIMNW,  X1PUBPRI = data1$X1PUBPRI)
+
+data2 = apply(data2, 2, function(x){ifelse(x == 1, 1, 0)})
+data2 = as.data.frame(data2)
+head(data2)
+
+# Need to change 2 through 8 to be 1 and 1 to be zero
+data3 = data1$X1PAR1RAC
+head(data3)
+
+data3 = apply(data3, 2, function(x){ifelse(x == 1, 0, 1)})
+data3 = as.data.frame(data3)
+
+data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,10894:10973])
+
+data1 = cbind(data1, data2, data3)
+
+```
+
+
+
 Running the actual analyses
 ```{r}
 # Getting rid of the missing data, and change to a data.frame
