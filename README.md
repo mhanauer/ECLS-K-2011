@@ -18,7 +18,7 @@ data2 = cbind(X_HISP_R = data$X_HISP_R, X_WHITE_R = data$X_WHITE_R, X_BLACK_R = 
 
 data3  = cbind( X1PAR1RAC = data$X1PAR1RAC)
 
-data1 = cbind(data1, data2, data3)
+data1 = cbind(data2, data3, data1)
 
 data1 = apply(data1, 2, function(x){ifelse(x == -9, NA, x)})
 
@@ -45,32 +45,24 @@ data3 = as.data.frame(data3)
 
 head(data1)
 
-data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,14:94])
+data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,29:108])
 
-data1 = cbind(data1, data2, data3)
-
-head(data1)
+data1 = cbind(data2, data3, data1)
 
 ```
-
-
-
 Running the actual analyses
 ```{r}
-# Getting rid of the missing data, and change to a data.frame
-data1 = na.omit(data1)
-data1 = as.data.frame(data1)
-head(data1)
-dim(data1)
-
 
 # Need to find the replicate weights and get them into a compressed variable
 # ECLS says to to use JK2, but JKn is fine for two or more.  The program suggested that I am using combined weights, which has all of the weights together, rscales just means scale the variance by 1, because there is not need for changing the variances. 
 
-scdrep = svrepdesign(variables = data1[,1:4], type="JKn", repweights = data1[,6:85], weights = data1[,5], combined.weights = TRUE, rscales = 1, scale = 1)
+head(data1)
+
+scdrep = svrepdesign(data = data1, type="JKn", repweights = data1[,30:108], weights = data1[,29], combined.weights = TRUE, rscales = 1, scale = 1)
 
 
-model1 = svyglm(XChangePRNCON ~ X1PAR1EMP + P1CURMAR + P1NUMBRS, scdrep)
+
+model1 = svyglm(X1PRNCON ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
 summary(model1)
 ```
 
