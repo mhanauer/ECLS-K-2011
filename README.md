@@ -44,11 +44,23 @@ head(data3)
 data3 = apply(data3, 2, function(x){ifelse(x == 1, 0, 1)})
 data3 = as.data.frame(data3)
 
-data1
+data4 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,29:108])
 
-data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP, X1BMI = data1$X1BMI, X1PAR1AGE = data1$X1PAR1AGE, X1PAR1EMP = data1$X1PAR1EMP, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL, W1P0 = data1$W1P0, data1[,29:108])
+data5 = cbind(data2, data3, data1)
+head(data1)
 
-data1 = cbind(data2, data3, data1)
+
+# Rearrange and then rename variables to get them in the correct order 
+
+data1 = cbind(X1PRNCON = data1$X1PRNCON, X1PRNSOC = data1$X1PRNSOC, X1PRNSAD = data1$X1PRNSAD, X1PRNIMP = data1$X1PRNIMP, X1PRNAPP = data1$X1PRNAPP,X_HISP_R = data1$X_HISP_R, X_WHITE_R = data1$X_WHITE_R, X_BLACK_R = data1$X_BLACK_R, X_ASIAN_R = data1$X_ASIAN_R, X_AMINAN_R = data1$X_AMINAN_R, X_HAWPI_R = data1$X_HAWPI_R, X_MULTR_R = data1$X_MULTR_R, X_CHSEX_R = data1$X_CHSEX_R, X1BMI = data1$X1BMI,X1RESREL = data1$X1RESREL,X1HPARNT = data1$X1HPARNT, X1PAR1AGE = data1$X1PAR1AGE,X1PAR1RAC = data1$X1PAR1RAC,X12PAR1ED_I = data1$X12PAR1ED_I, X1PAR1EMP = data1$X1PAR1EMP,X12LANGST = data1$X12LANGST, X1HTOTAL = data1$X1HTOTAL, X1NUMSIB = data1$X1NUMSIB, X1PRIMNW = data1$X1PRIMNW, X2POVTY = data1$X2POVTY, X12SESL = data1$X12SESL)
+
+names(data1) = c("Self Control", "Social Interaction", "Sad / Lonely", "Impulsive / Overactive", "Approaches to Learning", "Hispanic", "White", "African American", "Asian", "American Indian / Alaska Native ", "Native Hawiian / Pacific Islander", "Multiracial", "Child's sex", "Child's BMI", "Relationship of respondant to child ", "Parental martial status", "Parent age", "Parent's education level", "Parent's employment status", "Home lanuage non-English", "Number of household members", "Number of siblings in household", "Relative provides daycare", "Poverty level", "SES")
+
+head(data1)
+
+data1 = cbind(data1, , W1P0 = data1$W1P0, data5[,29:108])
+
+write.csv(data1, "data1.csv")
 
 ```
 Running the actual analyses
@@ -57,7 +69,6 @@ Running the actual analyses
 # Need to find the replicate weights and get them into a compressed variable
 # ECLS says to to use JK2, but JKn is fine for two or more.  The program suggested that I am using combined weights, which has all of the weights together, rscales just means scale the variance by 1, because there is not need for changing the variances. 
 
-head(data1)
 
 setwd("~/Google Drive/PARCS/Projects/ECLSK2011/Data")
 library(survey)
@@ -67,24 +78,24 @@ scdrep = svrepdesign(data = data1, type="JKn", repweights = data1[,30:108], weig
 svymean(data1, scdrep)
 svytotal(data1, scdrep)
 
-modelSC = svyglm(X1PRNCON ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
+modelSC = svyglm(X1PRNCON ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+  X_CHSEX_R+ + X1BMI + X1RESREL + X1HPARNT + X12LANGST  + X12PAR1ED_I + X1PUBPRI + X1PAR1RAC + X1PAR1AGE + X1PAR1EMP + X1PRIMNW + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
 
 summary(modelSC)
 
-modelSI = svyglm(X1PRNSOC ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
+modelSI = svyglm(X1PRNSOC ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+  X_CHSEX_R+ + X1BMI + X12LANGST+  X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESLL, scdrep)
 
 summary(modelSI)
 
 
-modelSL = svyglm(X1PRNSAD ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
+modelSL = svyglm(X1PRNSAD ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+  X_CHSEX_R+ + X1BMI + X12LANGST+  X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
 
 summary(modelSL)
 
-modelIO = svyglm(X1PRNIMP ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
+modelIO = svyglm(X1PRNIMP ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+  X_CHSEX_R+ + X1BMI + X12LANGST+  X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
 
 summary(modelIO)
 
-modelAP = svyglm(X1PRNAPP ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+ X12LANGST+ X_CHSEX_R+ X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1BMI + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
+modelAP = svyglm(X1PRNAPP ~ X_HISP_R + X_WHITE_R + X_BLACK_R + X_ASIAN_R+ X_AMINAN_R+ X_HAWPI_R+ X_MULTR_R+  X_CHSEX_R+ + X1BMI + X12LANGST+  X1RESREL+ X1HPARNT+ X12PAR1ED_I+ X1PRIMNW + X1PUBPRI + X1PAR1RAC + X1PAR1AGE + X1PAR1EMP + X1HTOTAL + X1NUMSIB + X2POVTY + X12SESL, scdrep)
 
 summary(modelAP)
 
